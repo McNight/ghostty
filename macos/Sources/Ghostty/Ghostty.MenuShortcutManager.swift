@@ -20,10 +20,16 @@ extension Ghostty {
 
         /// Syncs a single menu shortcut for the given action. The action string is the same
         /// action string used for the Ghostty configuration.
-        func syncMenuShortcut(_ config: Ghostty.Config, action: String?, menuItem: NSMenuItem?) {
+        func syncMenuShortcut(
+            _ config: Ghostty.Config,
+            action: String?,
+            menuItem: NSMenuItem?,
+            clearShortcutWhenMissing: Bool = true
+        ) {
             guard let menu = menuItem else { return }
 
             if !updateMenuShortcut(config, action: action, menuItem: menu) {
+                guard clearShortcutWhenMissing else { return }
                 menu.keyEquivalent = ""
                 menu.keyEquivalentModifierMask = []
             }

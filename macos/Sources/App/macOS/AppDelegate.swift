@@ -1165,12 +1165,12 @@ extension AppDelegate {
         syncMenuShortcut(config, action: "new_split:down", menuItem: self.menuSplitDown)
         syncMenuShortcut(config, action: "new_split:up", menuItem: self.menuSplitUp)
 
-        syncMenuShortcut(config, action: "undo", menuItem: self.menuUndo)
-        syncMenuShortcut(config, action: "redo", menuItem: self.menuRedo)
-        syncMenuShortcut(config, action: "copy_to_clipboard", menuItem: self.menuCopy)
-        syncMenuShortcut(config, action: "paste_from_clipboard", menuItem: self.menuPaste)
+        syncMenuShortcut(config, action: "undo", menuItem: self.menuUndo, clearShortcutWhenMissing: false)
+        syncMenuShortcut(config, action: "redo", menuItem: self.menuRedo, clearShortcutWhenMissing: false)
+        syncMenuShortcut(config, action: "copy_to_clipboard", menuItem: self.menuCopy, clearShortcutWhenMissing: false)
+        syncMenuShortcut(config, action: "paste_from_clipboard", menuItem: self.menuPaste, clearShortcutWhenMissing: false)
         syncMenuShortcut(config, action: "paste_from_selection", menuItem: self.menuPasteSelection)
-        syncMenuShortcut(config, action: "select_all", menuItem: self.menuSelectAll)
+        syncMenuShortcut(config, action: "select_all", menuItem: self.menuSelectAll, clearShortcutWhenMissing: false)
         syncMenuShortcut(config, action: "start_search", menuItem: self.menuFind)
         syncMenuShortcut(config, action: "search_selection", menuItem: self.menuSelectionForFind)
         syncMenuShortcut(config, action: "scroll_to_selection", menuItem: self.menuScrollToSelection)
@@ -1214,8 +1214,18 @@ extension AppDelegate {
         reloadDockMenu()
     }
 
-    @MainActor private func syncMenuShortcut(_ config: Ghostty.Config, action: String, menuItem: NSMenuItem?) {
-        menuShortcutManager.syncMenuShortcut(config, action: action, menuItem: menuItem)
+    @MainActor private func syncMenuShortcut(
+        _ config: Ghostty.Config,
+        action: String,
+        menuItem: NSMenuItem?,
+        clearShortcutWhenMissing: Bool = true
+    ) {
+        menuShortcutManager.syncMenuShortcut(
+            config,
+            action: action,
+            menuItem: menuItem,
+            clearShortcutWhenMissing: clearShortcutWhenMissing
+        )
     }
 
     @MainActor func performGhosttyBindingMenuKeyEquivalent(with event: NSEvent) -> Bool {
