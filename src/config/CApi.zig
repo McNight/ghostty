@@ -112,12 +112,32 @@ export fn ghostty_config_trigger(
     };
 }
 
+export fn ghostty_config_menu_trigger(
+    self: *Config,
+    str: [*]const u8,
+    len: usize,
+) inputpkg.Binding.Trigger.C {
+    return config_menu_trigger_(self, str[0..len]) catch |err| err: {
+        log.err("error finding menu trigger err={}", .{err});
+        break :err .{};
+    };
+}
+
 fn config_trigger_(
     self: *Config,
     str: []const u8,
 ) !inputpkg.Binding.Trigger.C {
     const action = try inputpkg.Binding.Action.parse(str);
     const trigger: inputpkg.Binding.Trigger = self.keybind.set.getTrigger(action) orelse .{};
+    return trigger.cval();
+}
+
+fn config_menu_trigger_(
+    self: *Config,
+    str: []const u8,
+) !inputpkg.Binding.Trigger.C {
+    const action = try inputpkg.Binding.Action.parse(str);
+    const trigger: inputpkg.Binding.Trigger = self.keybind.set.getMenuTrigger(action) orelse .{};
     return trigger.cval();
 }
 
@@ -276,5 +296,24 @@ test "ghostty_config_trigger: default keybind" {
         const trigger = try config_trigger_(&cfg, "adjust_selection:left");
         try testing.expectEqual(.physical, trigger.tag);
         try testing.expectEqual(.unidentified, trigger.key.physical);
+    }
+}
+
+test "ghostty_config_menu_trigger: default performable keybind" {
+    const testing = std.testing;
+
+    var cfg = try Config.default(testing.allocator);
+    defer cfg.deinit();
+
+    if (comptime builtin.target.os.tag.isDarwin()) {
+        const copy = try config_menu_trigger_(&cfg, "copy_to_clipboard");
+        try testing.expectEqual(.unicode, copy.tag);
+        try testing.expectEqual(@as(u32, 'c'), copy.key.unicode);
+        try testing.expect(copy.mods.super);
+
+        const paste = try config_menu_trigger_(&cfg, "paste_from_clipboard");
+        try testing.expectEqual(.unicode, paste.tag);
+        try testing.expectEqual(@as(u32, 'v'), paste.key.unicode);
+        try testing.expect(paste.mods.super);
     }
 }

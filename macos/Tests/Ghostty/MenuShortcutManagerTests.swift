@@ -4,6 +4,32 @@ import Testing
 @testable import Ghostty
 
 struct MenuShortcutManagerTests {
+    @Test
+    func copyShortcutUsesPerformableMenuBinding() async throws {
+        let config = try TemporaryConfig("")
+
+        let item = NSMenuItem(title: "Copy", action: #selector(Ghostty.SurfaceView.copy(_:)), keyEquivalent: "")
+        let manager = await Ghostty.MenuShortcutManager()
+        await manager.reset()
+        await manager.syncMenuShortcut(config, action: "copy_to_clipboard", menuItem: item)
+
+        #expect(item.keyEquivalent == "c")
+        #expect(item.keyEquivalentModifierMask == .command)
+    }
+
+    @Test
+    func copyShortcutCanBeCustomizedForMenus() async throws {
+        let config = try TemporaryConfig("keybind = super+shift+c=copy_to_clipboard")
+
+        let item = NSMenuItem(title: "Copy", action: #selector(Ghostty.SurfaceView.copy(_:)), keyEquivalent: "")
+        let manager = await Ghostty.MenuShortcutManager()
+        await manager.reset()
+        await manager.syncMenuShortcut(config, action: "copy_to_clipboard", menuItem: item)
+
+        #expect(item.keyEquivalent == "c")
+        #expect(item.keyEquivalentModifierMask == [.command, .shift])
+    }
+
     @Test(.bug("https://github.com/ghostty-org/ghostty/issues/779", id: 779))
     func unbindShouldDiscardDefault() async throws {
         let config = try TemporaryConfig("keybind = super+d=unbind")

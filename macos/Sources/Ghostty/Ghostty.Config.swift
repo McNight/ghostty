@@ -122,6 +122,17 @@ extension Ghostty {
             let trigger = ghostty_config_trigger(cfg, action, UInt(action.lengthOfBytes(using: .utf8)))
             return Ghostty.keyboardShortcut(for: trigger)
         }
+
+        /// Return the menu key equivalent for the given action. This can include
+        /// performable bindings that are intentionally excluded from
+        /// ``keyboardShortcut(for:)`` so native controls can receive standard
+        /// menu actions through the responder chain.
+        func menuKeyboardShortcut(for action: String) -> KeyboardShortcut? {
+            guard let cfg = self.config else { return nil }
+
+            let trigger = ghostty_config_menu_trigger(cfg, action, UInt(action.lengthOfBytes(using: .utf8)))
+            return Ghostty.keyboardShortcut(for: trigger)
+        }
 #endif
 
         // MARK: - Configuration Values

@@ -246,4 +246,14 @@ struct ConfigTests {
         let gotoToNextSplit = try #require(config.keyboardShortcut(for: "goto_split:next"))
         #expect(gotoToNextSplit == .init("]", modifiers: [.command]))
     }
+
+    @Test
+    func menuShortcutShouldIncludePerformableBindings() async throws {
+        let config = try TemporaryConfig("")
+
+        #expect(config.keyboardShortcut(for: "paste_from_clipboard") == nil)
+
+        let paste = try #require(config.menuKeyboardShortcut(for: "paste_from_clipboard"))
+        #expect(paste == .init("v", modifiers: [.command]))
+    }
 }
